@@ -4,12 +4,22 @@ import java.awt.Color;
 
 public class SeamCarver {
     private Picture picture;
+    private double[][] energy;
 
     public SeamCarver(Picture picture) {
         if (picture == null) {
             throw new IllegalArgumentException("argument is null");
         }
         this.picture = new Picture(picture);
+
+        int w = picture.width();
+        int h = picture.height();
+        this.energy = new double[w][h];
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                energy[i][j] = -1;
+            }
+        }
     }
 
     public Picture picture() {
@@ -36,15 +46,20 @@ public class SeamCarver {
             return 1000;
         }
 
+        if (energy[x][y] > -1) {
+            return energy[x][y];
+        }
+
         Color left = picture.get(x-1, y);
         Color right = picture.get(x+1, y);
         Color up = picture.get(x, y-1);
         Color down = picture.get(x, y+1);
 
-        double energy = 0.0;
-        energy += gradientSquare(left, right);
-        energy += gradientSquare(up, down);
-        return Math.sqrt(energy);
+        double e = 0.0;
+        e += gradientSquare(left, right);
+        e += gradientSquare(up, down);
+        energy[x][y] = Math.sqrt(e);
+        return energy[x][y];
     }
 
     public int[] findHorizontalSeam() {
@@ -93,8 +108,6 @@ public class SeamCarver {
         }
         return seam;
     }
-
-
 
     public int[] findVerticalSeam() {
         int w = width();
@@ -163,6 +176,14 @@ public class SeamCarver {
             }
         }
         picture = newPicture;
+        int w = picture.width();
+        int h = picture.height();
+        energy = new double[w][h];
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                energy[i][j] = -1;
+            }
+        }
     }
 
     public void removeVerticalSeam(int[] seam) {
@@ -185,6 +206,14 @@ public class SeamCarver {
             }
         }
         picture = newPicture;
+        int w = picture.width();
+        int h = picture.height();
+        energy = new double[w][h];
+        for (int i = 0; i < w; i++) {
+            for (int j = 0; j < h; j++) {
+                energy[i][j] = -1;
+            }
+        }
     }
 
     private double gradientSquare(Color c1, Color c2) {
